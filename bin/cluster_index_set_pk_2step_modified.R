@@ -77,8 +77,8 @@ print(cluster_mean_0hr)
 
 rainbow_cp_0hr = rev(rainbow(length(cluster_mean_0hr)))
 
-png('gmm.density.0hr.png')
-par(mfrow=c(2,2))
+pdf('gmm.density.0hr.pdf', width=14, height=7)
+par(mfrow=c(1,2))
 plot(mod_all_0hr, what = "density", data = signal_mat_0hr_log2_vec, breaks = 50)
 #plotDensityMclust1(mod_all, data = signal_mat_log2_vec_high, hist.col = "lightgrey", hist.border = "white",  breaks = "Sturges", type = "persp")
 for (i in c(1:length(cluster_mean_0hr))){
@@ -141,13 +141,13 @@ print(cluster_mean)
 
 rainbow_cp = rev(rainbow(length(cluster_mean)))
 
-png('gmm.density.png')
-par(mfrow=c(2,2))
+pdf('gmm.density.pdf', width=14, height=7)
+par(mfrow=c(1,2))
 plot(mod_all, what = "density", data = signal_mat_log2_fc_vec, breaks = 50)
 #plotDensityMclust1(mod_all, data = signal_mat_log2_vec_high, hist.col = "lightgrey", hist.border = "white",  breaks = "Sturges", type = "persp")
 for (i in c(1:length(cluster_mean))){
 	print(i)
-	x_input = seq(-4,9, 0.1)
+	x_input = seq(-9,9, 0.1)
 	cp_i_mean = mod_all$parameters$mean[i]
 	cp_i_sd = (mod_all$parameters$variance$sigmasq[i])^0.5
 	cp_i_pro = mod_all$parameters$pro[i]
