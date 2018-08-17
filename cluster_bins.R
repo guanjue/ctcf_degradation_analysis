@@ -20,6 +20,10 @@ paste WT.2r_nbp.fisher_p.200bp.normed.txt 0hr.2r_nbp.fisher_p.200bp.normed.txt 4
 
 paste mm9_200.sort.bed signal_mat_index_vec.txt mm9.200bp.signal.mat.txt > mm9_200.sort.indexset.sig.txt
 
+sort -k4,4 mm9_200.sort.indexset.sig.txt > mm9_200.sort.indexset.sort.sig.txt
+
+
+
 cat mm9_200.sort.indexset.sig.txt | awk -F '\t' -v OFS='\t' '{if ($4=="6_6_6_6") print $0}' > mm9_200.sort.indexset.sig.high_stable.txt
 
 bedtools merge -i mm9_200.sort.indexset.sig.high_stable.txt > mm9_200.sort.indexset.sig.high_stable.merge.bed
