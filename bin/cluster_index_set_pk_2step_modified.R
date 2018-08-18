@@ -175,6 +175,7 @@ plot(p3, col=rgb(0,1,0,1/4), xlim=c(-8,6), add=T)
 dev.off()
 
 ### get thresh limit for each 0hr signal level
+signal_mat_index = signal_mat_log2_fc
 gmm_2nd_thresh_mat = c()
 G_used = c(2,2,3)
 for (l in c(1:3)){
@@ -218,21 +219,16 @@ for (i in c(2:(length(cluster_mean)))){
 }
 print('gmm_2nd_thresh: ')
 print(gmm_2nd_thresh)
-gmm_2nd_thresh_mat = cbind(gmm_2nd_thresh_mat, gmm_2nd_thresh)
-}
 
-gmm_2nd_thresh_mat = cbind(gmm_2nd_thresh_mat[,1], rep(0.0, 3), gmm_2nd_thresh_mat[,2:3])
-signal_mat_index = signal_mat_log2_fc
 ### get background index: '0'
-for (l in c(1,3,4)){
-for (i in c(1:(length(cluster_mean)-1))){
+for (i in c(1:(length(gmm_2nd_thresh)-1))){
 	print(i)
 	### get range id
-	used_id_tmp = ( (signal_mat_log2_fc[,l]>=gmm_2nd_thresh_mat[i,l]) * (signal_mat_log2_fc[,l]<gmm_2nd_thresh_mat[i+1,l]) ) >0
+	used_id_tmp = ( (signal_mat_log2_fc[,l]>=gmm_2nd_thresh[i]) * (signal_mat_log2_fc[,l]<gmm_2nd_thresh[i+1]) ) >0
 	signal_mat_index[used_id_tmp,l] = i
 }
 ### get top pk index
-signal_mat_index[signal_mat_log2_fc[,l]>=gmm_2nd_thresh_mat[length(gmm_2nd_thresh_mat[,l]),l],l] = length(gmm_2nd_thresh_mat[,l])
+signal_mat_index[signal_mat_log2_fc[,l]>=gmm_2nd_thresh[length(gmm_2nd_thresh)],l] = length(gmm_2nd_thresh)
 }
 
 
