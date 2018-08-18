@@ -178,6 +178,7 @@ dev.off()
 signal_mat_index = signal_mat_log2_fc
 gmm_2nd_thresh_mat = c()
 G_used = c(2,2,3)
+timepoint_used = c(1,3,4)
 for (l in c(1:3)){
 set.seed(2018)
 mod_all_bic <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l])
@@ -224,11 +225,11 @@ print(gmm_2nd_thresh)
 for (i in c(1:(length(gmm_2nd_thresh)-1))){
 	print(i)
 	### get range id
-	used_id_tmp = ( (signal_mat_log2_fc[,l]>=gmm_2nd_thresh[i]) * (signal_mat_log2_fc[,l]<gmm_2nd_thresh[i+1]) ) >0
-	signal_mat_index[used_id_tmp,l] = i
+	used_id_tmp = ( (signal_mat_log2_fc[,timepoint_used[l]]>=gmm_2nd_thresh[i]) * (signal_mat_log2_fc[,timepoint_used[l]]<gmm_2nd_thresh[i+1]) ) >0
+	signal_mat_index[used_id_tmp,timepoint_used[l]] = i
 }
 ### get top pk index
-signal_mat_index[signal_mat_log2_fc[,l]>=gmm_2nd_thresh[length(gmm_2nd_thresh)],l] = length(gmm_2nd_thresh)
+signal_mat_index[signal_mat_log2_fc[,timepoint_used[l]]>=gmm_2nd_thresh[length(gmm_2nd_thresh)],timepoint_used[l]] = length(gmm_2nd_thresh)
 }
 
 
