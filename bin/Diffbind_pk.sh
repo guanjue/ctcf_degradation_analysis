@@ -8,6 +8,8 @@ cat 201803106_AllCtCFPeaks_DiffBind.S3norm.index.txt | awk -F '\t' -v OFS='\t' '
 
 cut -f1,2,3,4,5,6,7,8 201803106_AllCtCFPeaks_DiffBind.S3norm.index.sort.txt > 201803106_AllCtCFPeaks_DiffBind.S3norm.index.sort.meansigsort.txt
 
+time Rscript /storage/home/gzx103/group/software/ctcf_degradation_analysis/bin/box_trend.R
+
 #cat 201803106_AllCtCFPeaks_DiffBind.S3norm.index.sort.meansigsort.txt | awk -F '\t' -v OFS='\t' '{print $1"_"$2"_"$3, $4, $5, $6, $7, $8}' > 201803106_AllCtCFPeaks_DiffBind.S3norm.index.sort.meansigsort.foric.txt
 
 #time Rscript ~/group/software/snapshot/bin/plot_rect_sig.R 201803106_AllCtCFPeaks_DiffBind.S3norm.index.sort.meansigsort.txt 201803106_AllCtCFPeaks_DiffBind.S3norm.index.sort.png tp_list.txt 5 red white gray T 0.1
