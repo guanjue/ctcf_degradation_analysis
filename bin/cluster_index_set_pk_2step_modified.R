@@ -181,11 +181,11 @@ G_used = c(2,2,3)
 timepoint_used = c(1,3,4)
 
 for (l in c(1:3)){
-signal_mat_log2_fc_vec = as.vector(signal_mat_log2_fc[,timepoint_used[l]])
+signal_mat_log2_fc_vec = as.vector(signal_mat_log2_fc[signal_mat_index_0hr==l,c(1,3,4)])
 set.seed(2018)
-mod_all_bic <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l])
+mod_all_bic <- densityMclust(signal_mat_log2_fc_vec)
 set.seed(2018)
-mod_all <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l], G=G_used[l])
+mod_all <- densityMclust(signal_mat_log2_fc_vec, G=G_used[l])
 
 print(summary(mod_all))
 
@@ -198,7 +198,7 @@ rainbow_cp = rev(rainbow(length(cluster_mean)))
 
 pdf(paste('gmm.density.0hr_l', toString(l), '.pdf', sep=''), width=14, height=7)
 par(mfrow=c(1,2))
-plot(mod_all, what = "density", data = signal_mat_log2_fc_vec[signal_mat_index_0hr==l], breaks = 50)
+plot(mod_all, what = "density", data = signal_mat_log2_fc_vec, breaks = 50)
 #plotDensityMclust1(mod_all, data = signal_mat_log2_vec_high, hist.col = "lightgrey", hist.border = "white",  breaks = "Sturges", type = "persp")
 for (i in c(1:length(cluster_mean))){
 	#print(i)
@@ -217,7 +217,7 @@ gmm_2nd_thresh = c()
 gmm_2nd_thresh[1] = signal_fc_thresh
 for (i in c(2:(length(cluster_mean)))){
 	print(i)
-	gmm_2nd_thresh[i] = min(signal_mat_log2_fc_vec[signal_mat_index_0hr==l][cluster_id==i])
+	gmm_2nd_thresh[i] = min(signal_mat_log2_fc_vec[cluster_id==i])
 }
 print('gmm_2nd_thresh: ')
 print(gmm_2nd_thresh)
@@ -226,12 +226,16 @@ print(gmm_2nd_thresh)
 for (i in c(1:(length(gmm_2nd_thresh)-1))){
 	print(i)
 	### get range id
-	used_id_tmp = ( (signal_mat_index_0hr==l) * (signal_mat_log2_fc[,timepoint_used[l]]>=gmm_2nd_thresh[i]) * (signal_mat_log2_fc[,timepoint_used[l]]<gmm_2nd_thresh[i+1]) ) >0
-	signal_mat_index[used_id_tmp, timepoint_used[l]] = i
+	for (j in c(1,3,4)){
+	used_id_tmp = ( (signal_mat_index_0hr==l) * (signal_mat_log2_fc[,j]>=gmm_2nd_thresh[i]) * (signal_mat_log2_fc[,j]<gmm_2nd_thresh[i+1]) ) >0
+	signal_mat_index[used_id_tmp, j] = i
+	}
 }
 ### get top pk index
-used_id_tmp = ( (signal_mat_index_0hr==l) * (signal_mat_log2_fc[,timepoint_used[l]]>=gmm_2nd_thresh[length(gmm_2nd_thresh)]) ) >0
-signal_mat_index[used_id_tmp,timepoint_used[l]] = length(gmm_2nd_thresh)
+for (j in c(1,3,4)){
+used_id_tmp = ( (signal_mat_index_0hr==l) * (signal_mat_log2_fc[,j]>=gmm_2nd_thresh[length(gmm_2nd_thresh)]) ) >0
+signal_mat_index[used_id_tmp, j] = length(gmm_2nd_thresh)
+}
 }
 
 
