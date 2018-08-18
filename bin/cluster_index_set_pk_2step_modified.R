@@ -126,10 +126,61 @@ signal_mat_index_0hr[signal_mat_log2[,2]>=gmm_0hr_thresh[length(gmm_0hr_thresh)]
 signal_mat_log2_fc_vec = as.vector(signal_mat_log2_fc[,c(1,3,4)])
 signal_fc_thresh = min(signal_mat_log2_fc_vec)
 
+signal_mat_log2_fc_vec_WT = as.vector(signal_mat_log2_fc[,c(1)])
+signal_mat_log2_fc_vec_4hr = as.vector(signal_mat_log2_fc[,c(3)])
+signal_mat_log2_fc_vec_6hr = as.vector(signal_mat_log2_fc[,c(4)])
+
+### plot merge hist
+p1 <- hist(signal_mat_log2_fc_vec_WT, breaks = 50)
+p2 <- hist(signal_mat_log2_fc_vec_4hr, breaks = 50)
+p3 <- hist(signal_mat_log2_fc_vec_6hr, breaks = 50)
+pdf('fc.hist.pdf', width=7, height=7)
+par(mfrow=c(1,1))
+plot(p1, col=rgb(0,0,1,1/4), xlim=c(-8,6), main='WT, 4hr, 6hr hist')
+plot(p2, col=rgb(1,0,0,1/4), xlim=c(-8,6), add=T)
+plot(p3, col=rgb(0,1,0,1/4), xlim=c(-8,6), add=T)
+dev.off()
+
+### 0hr signal level1: plot merge hist
+p1 <- hist(signal_mat_log2_fc_vec_WT[signal_mat_index_0hr==1], breaks = 50)
+p2 <- hist(signal_mat_log2_fc_vec_4hr[signal_mat_index_0hr==1], breaks = 50)
+p3 <- hist(signal_mat_log2_fc_vec_6hr[signal_mat_index_0hr==1], breaks = 50)
+pdf('fc.hist.0hr_l1.pdf', width=7, height=7)
+par(mfrow=c(1,1))
+plot(p1, col=rgb(0,0,1,1/4), xlim=c(-8,6), main='WT, 4hr, 6hr hist')
+plot(p2, col=rgb(1,0,0,1/4), xlim=c(-8,6), add=T)
+plot(p3, col=rgb(0,1,0,1/4), xlim=c(-8,6), add=T)
+dev.off()
+
+### 0hr signal level2: plot merge hist
+p1 <- hist(signal_mat_log2_fc_vec_WT[signal_mat_index_0hr==2], breaks = 50)
+p2 <- hist(signal_mat_log2_fc_vec_4hr[signal_mat_index_0hr==2], breaks = 50)
+p3 <- hist(signal_mat_log2_fc_vec_6hr[signal_mat_index_0hr==2], breaks = 50)
+pdf('fc.hist.0hr_l2.pdf', width=7, height=7)
+par(mfrow=c(1,1))
+plot(p1, col=rgb(0,0,1,1/4), xlim=c(-8,6), main='WT, 4hr, 6hr hist')
+plot(p2, col=rgb(1,0,0,1/4), xlim=c(-8,6), add=T)
+plot(p3, col=rgb(0,1,0,1/4), xlim=c(-8,6), add=T)
+dev.off()
+
+### 0hr signal level3: plot merge hist
+p1 <- hist(signal_mat_log2_fc_vec_WT[signal_mat_index_0hr==3], breaks = 50)
+p2 <- hist(signal_mat_log2_fc_vec_4hr[signal_mat_index_0hr==3], breaks = 50)
+p3 <- hist(signal_mat_log2_fc_vec_6hr[signal_mat_index_0hr==3], breaks = 50)
+pdf('fc.hist.0hr_l3.pdf', width=7, height=7)
+par(mfrow=c(1,1))
+plot(p1, col=rgb(0,0,1,1/4), xlim=c(-8,6), main='WT, 4hr, 6hr hist')
+plot(p2, col=rgb(1,0,0,1/4), xlim=c(-8,6), add=T)
+plot(p3, col=rgb(0,1,0,1/4), xlim=c(-8,6), add=T)
+dev.off()
+
+### get thresh limit for each 0hr signal level
+gmm_2nd_thresh_mat = c()
+for (l in c(1:3)){
 set.seed(2018)
-mod_all_bic <- densityMclust(signal_mat_log2_fc_vec)
+mod_all_bic <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l])
 set.seed(2018)
-mod_all <- densityMclust(signal_mat_log2_fc_vec, G=3)
+mod_all <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l], G=3)
 
 summary(mod_all)
 attributes(mod_all)
@@ -141,9 +192,9 @@ print(cluster_mean)
 
 rainbow_cp = rev(rainbow(length(cluster_mean)))
 
-pdf('gmm.density.pdf', width=14, height=7)
+pdf(paste('gmm.density.0hr_l', toString(l), '.pdf', sep=''), width=14, height=7)
 par(mfrow=c(1,2))
-plot(mod_all, what = "density", data = signal_mat_log2_fc_vec, breaks = 50)
+plot(mod_all, what = "density", data = signal_mat_log2_fc_vec[signal_mat_index_0hr==l], breaks = 50)
 #plotDensityMclust1(mod_all, data = signal_mat_log2_vec_high, hist.col = "lightgrey", hist.border = "white",  breaks = "Sturges", type = "persp")
 for (i in c(1:length(cluster_mean))){
 	print(i)
@@ -157,30 +208,32 @@ plot(mod_all_bic, what = "BIC")
 #plot(mod_all, what = "diagnostic", type = "cdf")
 #plot(mod_all, what = "diagnostic", type = "qq")
 dev.off()
-
-
-
 ### get each cluster threshold
 gmm_2nd_thresh = c()
 gmm_2nd_thresh[1] = signal_fc_thresh
 for (i in c(2:(length(cluster_mean)))){
 	print(i)
-	gmm_2nd_thresh[i] = min(signal_mat_log2_fc_vec[cluster_id==i])
+	gmm_2nd_thresh[i] = min(signal_mat_log2_fc_vec[signal_mat_index_0hr==l][cluster_id==i])
 }
+print('gmm_2nd_thresh: ')
 print(gmm_2nd_thresh)
+gmm_2nd_thresh_mat = cbind(gmm_2nd_thresh_mat, gmm_2nd_thresh)
+}
 
+gmm_2nd_thresh_mat = cbind(gmm_2nd_thresh_mat[,1], rep(0.0, 3), gmm_2nd_thresh_mat[,2:3])
 signal_mat_index = signal_mat_log2_fc
 ### get background index: '0'
+for (l in c(1,3,4)){
 for (i in c(1:(length(cluster_mean)-1))){
 	print(i)
 	### get range id
-	used_id_tmp = ( (signal_mat_log2_fc>=gmm_2nd_thresh[i]) * (signal_mat_log2_fc<gmm_2nd_thresh[i+1]) ) >0
-	signal_mat_index[used_id_tmp] = i
+	used_id_tmp = ( (signal_mat_log2_fc[,l]>=gmm_2nd_thresh_mat[i,l]) * (signal_mat_log2_fc[,l]<gmm_2nd_thresh_mat[i+1,l]) ) >0
+	signal_mat_index[used_id_tmp,l] = i
+}
+### get top pk index
+signal_mat_index[signal_mat_log2_fc[,l]>=gmm_2nd_thresh_mat[length(gmm_2nd_thresh_mat[,l]),l],l] = length(gmm_2nd_thresh_mat[,l])
 }
 
-
-### get top pk index
-signal_mat_index[signal_mat_log2_fc>=gmm_2nd_thresh[length(gmm_2nd_thresh)]] = length(gmm_2nd_thresh)
 
 signal_mat_index = cbind(signal_mat_index_0hr, signal_mat_index)
 
