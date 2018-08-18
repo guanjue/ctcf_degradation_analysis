@@ -181,6 +181,7 @@ G_used = c(2,2,3)
 timepoint_used = c(1,3,4)
 
 for (l in c(1:3)){
+signal_mat_log2_fc_vec = as.vector(signal_mat_log2_fc[,timepoint_used[l]])
 set.seed(2018)
 mod_all_bic <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l])
 set.seed(2018)
