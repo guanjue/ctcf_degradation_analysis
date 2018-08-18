@@ -174,14 +174,11 @@ plot(p2, col=rgb(1,0,0,1/4), xlim=c(-8,6), add=T)
 plot(p3, col=rgb(0,1,0,1/4), xlim=c(-8,6), add=T)
 dev.off()
 
-### get thresh limit for each 0hr signal level
-gmm_2nd_thresh_mat = c()
-G_used = c(2,2,3)
 for (l in c(1:3)){
 set.seed(2018)
 mod_all_bic <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l])
 set.seed(2018)
-mod_all <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l], G=G_used[l])
+mod_all <- densityMclust(signal_mat_log2_fc_vec[signal_mat_index_0hr==l], G=3)
 
 summary(mod_all)
 attributes(mod_all)
@@ -218,23 +215,60 @@ for (i in c(2:(length(cluster_mean)))){
 }
 print('gmm_2nd_thresh: ')
 print(gmm_2nd_thresh)
-gmm_2nd_thresh_mat = cbind(gmm_2nd_thresh_mat, gmm_2nd_thresh)
 }
 
-gmm_2nd_thresh_mat = cbind(gmm_2nd_thresh_mat[,1], rep(0.0, 3), gmm_2nd_thresh_mat[,2:3])
+set.seed(2018)
+mod_all_bic <- densityMclust(signal_mat_log2_fc_vec)
+set.seed(2018)
+mod_all <- densityMclust(signal_mat_log2_fc_vec, G=3)
+
+summary(mod_all)
+attributes(mod_all)
+
+cluster_id = mod_all$classification
+cluster_mean = mod_all$parameters$mean
+print('2nd GMM cluster means: ')
+print(cluster_mean)
+
+rainbow_cp = rev(rainbow(length(cluster_mean)))
+
+pdf(paste('gmm.density.pdf', sep=''), width=14, height=7)
+par(mfrow=c(1,2))
+plot(mod_all, what = "density", data = signal_mat_log2_fc_vec, breaks = 50)
+#plotDensityMclust1(mod_all, data = signal_mat_log2_vec_high, hist.col = "lightgrey", hist.border = "white",  breaks = "Sturges", type = "persp")
+for (i in c(1:length(cluster_mean))){
+	print(i)
+	x_input = seq(-9,9, 0.1)
+	cp_i_mean = mod_all$parameters$mean[i]
+	cp_i_sd = (mod_all$parameters$variance$sigmasq[i])^0.5
+	cp_i_pro = mod_all$parameters$pro[i]
+	lines(x_input, cp_i_pro * dnorm(x_input, mean=cp_i_mean, sd=cp_i_sd), col=rainbow_cp[i])
+}
+plot(mod_all_bic, what = "BIC")
+#plot(mod_all, what = "diagnostic", type = "cdf")
+#plot(mod_all, what = "diagnostic", type = "qq")
+dev.off()
+### get each cluster threshold
+gmm_2nd_thresh = c()
+gmm_2nd_thresh[1] = signal_fc_thresh
+for (i in c(2:(length(cluster_mean)))){
+	print(i)
+	gmm_2nd_thresh[i] = min(signal_mat_log2_fc_vec[cluster_id==i])
+}
+print(gmm_2nd_thresh)
+
 signal_mat_index = signal_mat_log2_fc
 ### get background index: '0'
-for (l in c(1,3,4)){
 for (i in c(1:(length(cluster_mean)-1))){
 	print(i)
 	### get range id
-	used_id_tmp = ( (signal_mat_log2_fc[,l]>=gmm_2nd_thresh_mat[i,l]) * (signal_mat_log2_fc[,l]<gmm_2nd_thresh_mat[i+1,l]) ) >0
-	signal_mat_index[used_id_tmp,l] = i
-}
-### get top pk index
-signal_mat_index[signal_mat_log2_fc[,l]>=gmm_2nd_thresh_mat[length(gmm_2nd_thresh_mat[,l]),l],l] = length(gmm_2nd_thresh_mat[,l])
+	used_id_tmp = ( (signal_mat_log2_fc>=gmm_2nd_thresh[i]) * (signal_mat_log2_fc<gmm_2nd_thresh[i+1]) ) >0
+	signal_mat_index[used_id_tmp] = i
 }
 
+
+### get top pk index
+signal_mat_index[signal_mat_log2_fc>=gmm_2nd_thresh[length(gmm_2nd_thresh)]] = length(gmm_2nd_thresh)
 
 signal_mat_index = cbind(signal_mat_index_0hr, signal_mat_index)
 
