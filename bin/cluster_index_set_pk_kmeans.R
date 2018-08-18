@@ -5,7 +5,7 @@ signal_mat = as.matrix(signal_mat)
 signal_mat_log2 = log2(signal_mat+0.1)
 signal_mat_log2_od = signal_mat_log2
 set.seed(2018)
-fit <- kmeans(signal_mat_log2, 6)
+fit <- kmeans(signal_mat_log2, 10)
 
 kmeans_id = fit$cluster
 
